@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bulk Image Prediction</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #6a11ff;
+            --secondary-color: #2575fc;
+            --accent-color: #ff6b6b;
+            --background-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: var(--background-gradient);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            animation: gradientShift 15s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .form-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 800px;
+            transform: translateY(0);
+            opacity: 1;
+            animation: formEntrance 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+            transition: transform 0.3s ease;
+        }
+
+        @keyframes formEntrance {
+            0% { transform: translateY(20px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: 600;
+            font-size: 2.2em;
+            position: relative;
+            display: inline-block;
+        }
+
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: var(--primary-color);
+            border-radius: 2px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #34495e;
+            font-weight: 500;
+            font-size: 0.95em;
+            transition: color 0.3s ease;
+        }
+
+        input, select, .file-upload {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        input:focus, select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 4px 12px rgba(106, 17, 255, 0.15);
+            outline: none;
+            transform: translateY(-2px);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        button {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                120deg,
+                transparent,
+                rgba(255, 255, 255, 0.3),
+                transparent
+            );
+            transition: 0.5s;
+        }
+
+        button:hover::before {
+            left: 100%;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(106, 17, 255, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 12px rgba(106, 17, 255, 0.2);
+        }
+
+        .file-upload {
+            border: 2px dashed #e0e0e0;
+            text-align: center;
+            padding: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .file-upload:hover {
+            border-color: var(--primary-color);
+            background: rgba(106, 17, 255, 0.03);
+        }
+
+        .file-upload input[type="file"] {
+            opacity: 0;
+            position: absolute;
+            cursor: pointer;
+        }
+
+        .note {
+            text-align: center;
+            margin-top: 20px;
+            color: #7f8c8d;
+            font-size: 0.9em;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.8; }
+            50% { opacity: 1; }
+            100% { opacity: 0.8; }
+        }
+
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-container {
+                padding: 25px;
+            }
+            
+            h1 {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h1>🧠 Stroke Prediction Scan</h1>
+        <form action="/predict_bulk" method="POST" enctype="multipart/form-data">
+            <div class="form-grid">
+                <!-- Left Column -->
+                <div>
+                    <div class="form-group">
+                        <label>👤 Name</label>
+                        <input type="text" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>🎂 Age</label>
+                        <input type="number" name="age" required>
+                    </div>
+                    <div class="form-group">
+                        <label>📧 Email</label>
+                        <input type="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label>🚻 Gender</label>
+                        <select name="gender">
+                            <option value="Female">♀ Female</option>
+                            <option value="Male">♂ Male</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="smoking">Smoking</label>
+                        <select name="smoking" required>
+                            
+                            <option value="Unknown">Unknown</option>
+                                <option value="Formerly Smoked">Formerly Smoked</option>
+                                <option value="Never Smoked">🚫 Never Smoked</option>
+                                <option value="Smokes">Smokes</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="hypertension">Hypertension</label>
+                        <select name="hypertension" required>
+                            <option value="Yes">Yes</option>
+                            <option value="No">🚫 No</option>
+                            
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="previous_strokes">Previous Strokes</label>
+                        <select name="previous_strokes" required>
+                            <option value="Yes">Yes</option>
+                            <option value="No">🚫 No</option>
+                            
+                        </select>
+                    </div>
+        
+        
+        
+                </div>
+
+
+                <!-- Right Column -->
+                <div>
+
+                    <div class="form-group">
+                        <label for="alcohol">Alcohol Consumption</label>
+                        <select name="alcohol" required>
+                            <option value="Yes">Yes</option>
+                            <option value="No">🚫 No</option>
+                            
+                            <option value="Occasional">Occasional</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="activity">Physical Activity</label>
+                        <select name="activity" required>
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
+                    </div>
+        
+        
+                    <div class="form-group">
+                        <label>🌆 Residence Type</label>
+                        <select name="Residence_type">
+                            <option value="Rural">🌾 Rural</option>
+                            <option value="Urban">🏙️ Urban</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>💼 Work Type</label>
+                        <select name="work_type">
+                            <option value="Govt Job">🏛️ Govt Job</option>
+                            <option value="Private">🏢 Private</option>
+                            <option value="Self-employed">💼 Self-employed</option>
+                            <option value="Never Worked">🚫 Never Worked</option>
+                            <option value="Children">👶 Children</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>💍 Ever Married</label>
+                        <select name="ever_married">
+                            <option value="No">🚫 No</option>
+                            <option value="Yes">💍 Yes</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="diabetes">Diabetes</label>
+                        <select name="diabetes" required>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                    </div>
+        
+                    <div class="form-group">
+                        <label>🧪 Model Selection</label>
+                        <select name="model" required>
+                            <option value="Logistic Regression">📈 Logistic Regression</option>
+                            <option value="Random Forest">🌳 Random Forest</option>
+                            <option value="Decision Tree">🌲 Decision Tree</option>
+                            <option value="SVM">⚡ SVM</option>
+                            <option value="XGBoost">🚀 XGBoost</option>
+                            <option value="KNN">🔍 KNN</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Full Width Elements -->
+            <div class="form-group">
+                <label>📸 Medical Scans (CT/MRI)</label>
+                <div class="file-upload">
+                    <input type="file" name="images" accept="image/*" multiple required>
+                    <span>📁 Drag & Drop or Click to Upload (Max 10)</span>
+                </div>
+            </div>
+
+            <button type="submit">
+                <span>🔍 Analyze Scans</span>
+            </button>
+
+            <div class="note">🔒 All data is securely processed and encrypted</div>
+        </form>
+    </div>
+</body>
+</html>

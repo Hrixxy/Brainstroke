@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prediction Results</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        /* Enhanced overall styling */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            color: #2d3436;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            margin: 2rem 0;
+            font-size: 2.8rem;
+            background: linear-gradient(45deg, #2575fc 0%, #6a11cb 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* Improved result container */
+        .result-container {
+            /* display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 20px; */
+            display: flex;
+    flex-wrap: wrap;
+    justify-content: center; /* Centers cards horizontally */
+    align-items: center; /* Centers cards vertically if there's enough height */
+    gap: 2rem;
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 20px;
+        }
+
+        .result-card {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin: 20px;
+            width: 280px;
+            padding: 20px;
+            text-align: left;
+            transition: transform 0.2s;
+            align-items: center;
+
+        }
+
+        .result-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+        }
+
+        .result-card img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+
+        /* Enhanced final result section */
+        .chart-result-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            max-width: 1400px;
+            margin: 3rem auto;
+            padding: 0 20px;
+        }
+
+        .final-result {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border-left: 6px solid;
+        }
+
+        /* Responsive design adjustments */
+        @media (max-width: 1200px) {
+            .chart-result-container {
+                grid-template-columns: 1fr;
+                max-width: 800px;
+            }
+            
+            .chart-container {
+                order: -1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .result-container {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+        }
+
+        /* Enhanced chart styling */
+        .chart-container {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        /* Improved typography */
+        h2 {
+            font-size: 1.6rem;
+            margin-bottom: 1rem;
+            color: #2d3436;
+        }
+
+        p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin: 0.8rem 0;
+        }
+
+        /* Better list styling */
+        .recommendations {
+            padding-left: 1.2rem;
+        }
+
+        .recommendations li {
+            margin: 0.8rem 0;
+            padding-left: 1rem;
+            border-left: 3px solid #6a11cb;
+        }
+
+        /* Enhanced button styling */
+        .btn-container {
+            text-align: center;
+            margin: 3rem 0;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            padding: 12px 30px;
+            background: linear-gradient(45deg, #2575fc 0%, #6a11cb 100%);
+            color: white;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(37, 117, 252, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(37, 117, 252, 0.4);
+        }
+
+        /* Notification animation */
+        @keyframes slideIn {
+            0% { transform: translate(-50%, -100px); opacity: 0; }
+            100% { transform: translate(-50%, 20px); opacity: 1; }
+        }
+
+        @keyframes slideOut {
+            0% { transform: translate(-50%, 20px); opacity: 1; }
+            100% { transform: translate(-50%, -100px); opacity: 0; }
+        }
+        .count{
+            max-width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+        }
+        .heading{
+            max-width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="heading">
+        <h1>Prediction Results</h1>
+
+    </div>
+
+    <div class="result-container" >
+        {% for result in results %}
+        <div class="result-card" style="box-shadow: 0 8px 16px {% if result['Prediction'] == 'Stroke' %}rgba(255, 0, 0, 0.5){% else %}rgba(0, 128, 0, 0.5){% endif %}; 
+    border-color: {% if result['Prediction'] == 'Stroke' %}#ff6666{% else %}#66ff66{% endif %};">
+                <img src="{{ url_for('static', filename='uploads/' + result['Image Path'].split('/')[-1]) }}" alt="Uploaded Image">
+
+                <h2>{{ result['Model'] }} - Prediction</h2>
+                <p><strong>Prediction:</strong> {{ result['Prediction'] }}</p>
+                <p><strong>Confidence:</strong> {{ result['Confidence'] }}</p>
+                <p><strong>Model Accuracy:</strong> {{ result['Model Accuracy'] }}</p>
+                
+            </div>
+        {% endfor %}
+    </div>
+    <div class="count">
+        <h3>Stroke Count: {{ stroke_count }}</h3>
+    <h3>Normal Count: {{ normal_count }}</h3>
+</div>
+    
+    <div class="chart-result-container">
+    <div class="final-result" style="box-shadow: 0 8px 16px {% if final_result['Final Prediction'] == 'Stroke Detected' %}rgba(255, 0, 0, 0.5){% else %}rgba(0, 128, 0, 0.5){% endif %}; 
+            border-color: {% if final_result['Final Prediction'] == 'Stroke Detected' %}#ff6666{% else %}#66ff66{% endif %};">
+        <h2>Final Result: {{ final_result['Final Prediction'] }}</h2>
+        {% if final_result['Final Prediction'] == "Stroke Detected" %}
+            <p><strong>Suggestion:</strong> {{ final_result['Suggestion'] }}</p>
+            {% else %}
+            <p><strong>General Health Recommendations:</strong></p>
+            <ul>
+                {% for recommendation in final_result['General Health Recommendations'] %}
+                    <li class="recommendations">{{ recommendation }}</li>
+                {% endfor %}
+            </ul>
+            <p><strong>Risk Factor:</strong> {{ risk_factor }}%</p>
+            <p><strong>Estimated Years Until Stroke:</strong> {{ estimated_years }} years</p>
+
+            
+        {% endif %}
+        
+        <p><strong>Algorithm:</strong> {{ final_result['Algorithm'] }}</p>
+        <p><strong>Accuracy:</strong> {{ final_result['Accuracy'] }}</p>
+    </div>
+
+    <div class="chart-container">
+        <canvas id="strokeChart"></canvas>
+    </div>
+    </div>
+    
+
+    
+    {% if email_sent %}
+        <div class="notification">
+            <p class="success-message">✔ Email has been sent successfully to {{ email }}.</p>
+        </div>
+    
+    {% else %}
+    <div class="alert alert-danger">
+        Failed to send the email. Please check your email address and try again.
+    </div>
+{% endif %}
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var strokeCount = {{ stroke_count|default(0) }};
+        var normalCount = {{ normal_count|default(0) }};
+
+        var ctx = document.getElementById('strokeChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: ["Stroke", "No Stroke"],
+                datasets: [{
+                    data: [strokeCount, normalCount],
+                    backgroundColor: ["#ff6666", "#66ff66"],
+                    borderColor: ["#fff", "#fff"],
+                    borderWidth: 2,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            font: {
+                                size: 14,
+                                weight: 'bold',
+                            },
+                            color: '#333',
+                        }
+                    },
+                    tooltip: {
+                        enabled: true,
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        titleFont: { size: 16 },
+                        bodyFont: { size: 14 },
+                        footerFont: { size: 12 },
+                    }
+                },
+                animation: {
+                    duration: 2000,
+                    easing: 'easeInOutQuart',
+                },
+                hover: {
+                    animationDuration: 300,
+                },
+            }
+        });
+    });
+</script>
+
+
+<div class="btn-container">
+    <a href="/" class="btn">Go Back to Upload</a>
+</div>
+</body>
+<style>
+    /* Notification Pop-up */
+    .notification {
+        position: fixed;
+        top: -100px; /* Start off-screen */
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: #4CAF50; /* Green background */
+        /* background: linear-gradient(90deg, #ff6f61, #ff3b3f); */
+        background-color: #007bff;
+        /* background: linear-gradient(60deg,#208bfd,#007bff); */
+        background: linear-gradient(60deg,#007bff,#5a9ade,#007bff);
+        color: white;
+        padding: 15px 30px;
+        border-radius: 5px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        z-index: 1000;
+        animation: slideIn 0.5s forwards, slideOut 0.5s forwards 3s; /* Slide in, then slide out after 3 seconds */
+    }
+
+    /* Keyframes for Slide-in Animation */
+    @keyframes slideIn {
+        from {
+            top: -100px;
+        }
+        to {
+            top: 20px;
+        }
+    }
+
+    /* Keyframes for Slide-out Animation */
+    @keyframes slideOut {
+        from {
+            top: 20px;
+        }
+        to {
+            top: -100px;
+        }
+    }
+
+    /* Success Message Style */
+    .success-message {
+        font-size: 16px;
+        font-weight: bold;
+    }
+    /* .btn {
+        background: linear-gradient(60deg,#208bfd,#007bff);
+
+        border: none;
+        color: #fff;
+        padding: 10px 30px;
+        font-size: 18px;
+        border-radius: 25px;
+        transition: all 0.3s ease;
+    }
+    .btn:hover {
+        background: linear-gradient(60deg,#007bff,#5a9ade,#007bff);
+
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(255, 111, 97, 0.4);
+    }
+    .btn:active {
+        transform: translateY(0);
+    }
+    .footer {
+        text-align: center;
+        margin-top: 30px;
+        color: #888;
+    } */
+</style>
+</html>
