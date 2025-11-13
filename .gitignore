@@ -1,0 +1,63 @@
+# -----------------------------
+# Python Project .gitignore
+# -----------------------------
+
+# Virtual environment
+.venv/
+venv/
+env/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Jupyter and IPython
+.ipynb_checkpoints/
+.profile
+.python-version
+
+# IDE / Editor settings
+.idea/
+.vscode/
+*.iml
+
+# OS-generated files
+.DS_Store
+Thumbs.db
+
+# Logs and temp files
+*.log
+*.tmp
+*.bak
+
+# Environment files
+.env
+*.env
+
+# Model and data files
+models/*.pkl
+*.h5
+*.hdf5
+*.pt
+*.joblib
+*.sav
+*.dat
+
+# Uploads or generated content
+static/uploads/
+
+# Build and packaging
+build/
+dist/
+*.egg-info/
+*.spec
+
+# SQLite and database dumps
+*.db
+*.sqlite3
+*.sql
+
+# Backup or test artifacts
+test_results/
+backup/
